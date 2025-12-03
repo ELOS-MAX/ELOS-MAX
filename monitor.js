@@ -1,9 +1,30 @@
 #!/usr/bin/env node
-// elos-deep.js
-// Explore deep ephemeral layer nesting and live-monitoring
-// Usage: node elos-deep.js [depth] [branch] [pulseMs] [maxTasksPerPulse]
-// Example: node monitor.js 5 3 250 100000
+// Author: James Chapman (iconoclastdao@gmail.com / 1jbchap@gmail.com / jameschapman@solavia)
+//Date: 2025
+//Dual License – Free for Individuals & Educational/Open-Source Use  
+//Commercial/For-Profit Use Requires a Paid License
 
+//This software is made available under the following dual-license terms:
+
+//1. Free License (Individuals, Education, and Open-Source Projects)  
+//   You are granted a perpetual, worldwide, non-exclusive, no-charge, royalty-free license to use, copy, modify, merge, publish, distribute, and sublicense the software PROVIDED THAT:
+//   - You are an individual (natural person) using it for personal or non-commercial purposes, OR
+//   - You are an educational institution or non-profit organization using it for teaching, learning, or research, OR
+//   - You are distributing the software (with or without modifications) under an OSI-approved open-source license.
+//
+//   In these cases, the software is provided "AS IS" without warranty of any kind.
+
+//2. Commercial/For-Profit License  
+//   Any use of this software in a commercial product, by a for-profit entity, or in any revenue-generating activity (including internal business use that provides economic benefit) requires a paid commercial license.
+//
+ //  To obtain a commercial license or to discuss custom licensing terms, please contact:
+
+ //  James Chapman  
+ //  Email: iconoclastdao@gmail.com  
+  //         1jbchap@gmail.com
+//
+// Unless you have obtained a separate written commercial license agreement from James Chapman, your use is limited to the free license described in section 1 above.
+// ***
 const depth = Number(process.argv[2] || 4);           // nested layers (>=1)
 const branch = Number(process.argv[3] || 4);          // branching factor per layer (>=1)
 const pulseMs = Number(process.argv[4] || 250);       // ms between global pulses
