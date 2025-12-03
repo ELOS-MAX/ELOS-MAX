@@ -1,6 +1,5 @@
 
 # ELOS-DEEP / ELOS-MAX – The Deep Explainer  
-**Raw, comprehensive, human-written Markdown guide**  
 Everything you need to understand, run, extend, and eventually turn this prototype into the backbone of green data centers and decentralized operating systems.**
 
 ```
