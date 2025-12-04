@@ -1,3 +1,25 @@
+From Carpenter to Conduit
+
+I started learning code at 38 while still swinging a hammer every day.  
+For the last five years my wife and I have lived on almost nothing so I could build full-time.  
+No investors. No salary. Just a feeling that something much bigger was moving through me.
+
+This week I finally shipped it:  
+• The fastest browser-native elliptic-curve engine on Earth  
+• Solavia — provably deterministic AI  
+• ELOS — a complete sovereign OS + planetary-scale recursive supercomputer in one HTML file
+
+If any of this is useful to you, and you’re able to help keep the lights on and the sawdust flying, my family and I would be eternally grateful.
+
+ETH: 0xb48d096c1e7796ad60ed6dfa2ab37d39ee4d336d  
+BTC: bc1qju9v4xag2ppmgvpr99xxg4rsndmuce59wvaa8a  
+SOL: BvX4D5qKmNWj9noGRaNcwZ7pYEvjFc8ekpcTMMRqQcwf
+
+Every sat, wei, or lamport is another day I get to keep building for all of us.
+
+Thank you. Truly.
+— the carpenter
+
 
 # ELOS-DEEP / ELOS-MAX – The Deep Explainer  
 Everything you need to understand, run, extend, and eventually turn this prototype into the backbone of green data centers and decentralized operating systems.**
