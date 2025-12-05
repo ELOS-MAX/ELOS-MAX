@@ -1,5 +1,5 @@
 /*! 
- * ELOS-DEEP / ELOS-MAX — Maximal-performance Node.js synthetic benchmark
+ *  / ELOS-MAX — Maximal-performance Node.js synthetic benchmark
  * © 2025 James Chapman 
  *
  * Contact emails:
