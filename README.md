@@ -21,7 +21,7 @@ Thank you. Truly.
 — the carpenter
 
 
-# ELOS-DEEP / ELOS-MAX – The Deep Explainer  
+# ELOS-MAX – The Deep Explainer  
 Everything you need to understand, run, extend, and eventually turn this prototype into the backbone of green data centers and decentralized operating systems.**
 
 ```
