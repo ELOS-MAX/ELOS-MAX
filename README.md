@@ -109,93 +109,84 @@ Total leaf operations per pulse at depth 12 → 531,441
 Total operations per second on M2/M3 → ~2.9–3.3 million
 
 All occurs synchronously in a single thread. When the pulse ends, the call stack unwinds and the process becomes completely idle.
-
+```
 </details>
 
+---
 
-
-⸻
-
-4. Real Numbers from Logs (Apple Silicon M-series)
+## 4. Real Numbers from Logs (Apple Silicon M-series)
 
 <details>
 <summary>Click to expand</summary>
 
-
-Depth	Tasks per Pulse	Avg Pulse Time	Sustained Rate	Heap	RSS	Notes
-6	729	0.7–2.2 ms	~800 k ops/s	4 MB	50 MB	Warm-up
-11	177,147	80–87 ms	2.1–2.25 Mops/s	5 MB	52 MB	Sweet spot
-12	531,441	178–182 ms	2.95–3.05 Mops/s	5–11 MB	56–64 MB	Peak stable
+| Depth | Tasks per Pulse | Avg Pulse Time | Sustained Rate | Heap | RSS | Notes |
+|-------|----------------|----------------|----------------|------|-----|-------|
+| 6     | 729            | 0.7–2.2 ms    | ~800 k ops/s   | 4 MB | 50 MB | Warm-up |
+| 11    | 177,147        | 80–87 ms      | 2.1–2.25 Mops/s | 5 MB | 52 MB | Sweet spot |
+| 12    | 531,441        | 178–182 ms    | 2.95–3.05 Mops/s | 5–11 MB | 56–64 MB | Peak stable |
 
 Memory remains under 11 MB heap even after 200 million+ operations.
 
 </details>
 
+---
 
-
-⸻
-
-5. Why This Beats Traditional Thread-Pool / Worker Models
+## 5. Why This Beats Traditional Thread-Pool / Worker Models
 
 <details>
 <summary>Click to expand</summary>
 
-
-Metric	Traditional Thread Pool / Worker_Threads	ELOS Recursive Burst Model
-Startup latency	1–50 ms per task	0 (stack already hot)
-Context-switch cost	High	None
-Memory per task	2–10 MB	< 20 bytes
-Heat generation	Continuous	Only 180 ms spikes
-Tail latency	High variance	Extremely predictable
-Ability to sleep	Poor	Instant deep sleep
+| Metric | Traditional Thread Pool / Worker_Threads | ELOS Recursive Burst Model |
+|--------|-----------------------------------------|----------------------------|
+| Startup latency | 1–50 ms per task | 0 (stack already hot) |
+| Context-switch cost | High | None |
+| Memory per task | 2–10 MB | < 20 bytes |
+| Heat generation | Continuous | Only 180 ms spikes |
+| Tail latency | High variance | Extremely predictable |
+| Ability to sleep | Poor | Instant deep sleep |
 
 </details>
 
+---
 
-
-⸻
-
-6. Current Limitations
+## 6. Current Limitations
 
 <details>
 <summary>Click to expand</summary>
 
-
-Limitation	Status	Fix Difficulty
-Single-threaded only	Current	Medium (worker_threads + shared memory)
-No network distribution	Missing	Hard (libp2p / custom protocol)
-No fault tolerance / retries	Missing	Hard
-Only one dummy workload	Current	Easy (make nanoOp() pluggable)
-Stack overflow at depth > ~30	Will crash	Medium (convert to iterative or trampoline)
+| Limitation | Status | Fix Difficulty |
+|------------|--------|----------------|
+| Single-threaded only | Current | Medium (worker_threads + shared memory) |
+| No network distribution | Missing | Hard (libp2p / custom protocol) |
+| No fault tolerance / retries | Missing | Hard |
+| Only one dummy workload | Current | Easy (make nanoOp() pluggable) |
+| Stack overflow at depth > ~30 | Will crash | Medium (convert to iterative or trampoline) |
 
 </details>
 
+---
 
-
-⸻
-
-7. Path to Production – What Is Missing
+## 7. Path to Production – What Is Missing
 
 <details>
 <summary>Click to expand</summary>
 
-
-Feature Needed	Estimated Effort	Impact
-Pluggable nano-kernels (BLAKE3, ML inference, compression…)	1 week	Huge
-Worker-thread + SharedArrayBuffer mode	3–4 weeks	Huge
-Binary protocol over WebTransport / QUIC	4–6 weeks	Huge
-DHT-based task splitting (libp2p or custom)	6–12 weeks	Game-changer
-Auto-depth thermal/power governor	1–2 weeks	Nice-to-have
-Kubernetes / Nomad / Fly.io operator	4–8 weeks	Enables cloud adoption
+| Feature Needed | Estimated Effort | Impact |
+|----------------|-----------------|--------|
+| Pluggable nano-kernels (BLAKE3, ML inference, compression…) | 1 week | Huge |
+| Worker-thread + SharedArrayBuffer mode | 3–4 weeks | Huge |
+| Binary protocol over WebTransport / QUIC | 4–6 weeks | Huge |
+| DHT-based task splitting (libp2p or custom) | 6–12 weeks | Game-changer |
+| Auto-depth thermal/power governor | 1–2 weeks | Nice-to-have |
+| Kubernetes / Nomad / Fly.io operator | 4–8 weeks | Enables cloud adoption |
 
 </details>
 
+---
 
+## 8. Immediate Next Steps
 
-⸻
-
-8. Immediate Next Steps
-
+```bash
 # Clone & run the prototype
 git clone https://github.com/iconoclastdao/elos-deep.git
 cd elos-deep
@@ -204,82 +195,107 @@ cd elos-deep
 node monitor.js 11 3 300 2000000   # ~2.2 Mops/s
 node monitor.js 12 3 300 2000000   # ~3.0 Mops/s
 node monitor.js 13 3 300 5000000   # ~8–9 Mops/s on M3 Max (if you dare)
-
-
-⸻
-
-9. How It Works (Summary)
-
-<details>
-<summary>Click to expand</summary>
-
-
-	•	Runs a periodic global pulse every pulseMs milliseconds.
-	•	Executes a controlled number of nanoOps via recursive runLayer().
-	•	Generates random Ethereum-style addresses and checks for a target substring (extremely unlikely to match).
-	•	Total work per pulse = min(maxTasksPerPulse, branch^depth).
-	•	Streams telemetry each pulse (ops/sec, memory, progress).
-	•	Every 10 seconds, prints a summary block.
-	•	Press Ctrl-C for clean exit.
-
-</details>
-
-
-
-⸻
-
-10. Key Takeaways & Applications
-
-<details>
-<summary>Click to expand</summary>
-
-
-	•	Pulse-driven, layered task spawning → efficient, high-volume task management
-	•	Safety counters prevent resource exhaustion
-	•	Telemetry & moving averages → scaling and debugging visibility
-	•	Branching layers → natural parallelism, compatible with clusters/distributed systems
-
-Potential Applications
-
-Pattern Search and Data Mining
-	•	Searching large datasets for rare patterns.
-	•	Examples: Fraud detection, server log anomaly detection, genomic sequence searches.
-
-Simulation and Monte Carlo Computation
-	•	Efficiently run billions of independent trials.
-	•	Examples: Weather prediction, financial risk modeling, material science simulations.
-
-Load Testing and Stress Testing
-	•	Safely simulate millions of concurrent requests.
-	•	Examples: API/database benchmarks, blockchain node testing, microservice workflow evaluation.
-
-Distributed or Edge Computation
-	•	Pulses run on multiple workers/devices; branches = units of work.
-	•	Examples: Distributed rendering, edge AI inference, IoT local processing.
-
-Real-Time Monitoring and Telemetry Systems
-	•	Pulsed execution for high-throughput, real-time streams.
-	•	Examples: Industrial sensor monitoring, cybersecurity anomaly detection, adaptive cloud workloads.
-
-Ethical Cryptography & Blockchain Tools
-	•	Legitimate random key/address generation or entropy testing.
-	•	Examples: Vanity address generation, private key entropy verification, controlled collision testing.
-
-</details>
-
-
-
-⸻
-
-Summary
-
-This program is a prototype of a rate-governed, verifiable, parallelizable compute substrate.
-Scaled up, it could serve as the foundation for:
-	•	Distributed compute swarms
-	•	Verifiable computation markets
-	•	Safety-bounded general computation
-	•	Autonomous agents executing predictable heavy workloads
-
-It is task-agnostic, purely a structured architecture for pulse-driven, safe, high-throughput computation.
+```
 
 ---
+
+## 9. How It Works (Summary)
+
+<details>
+<summary>Click to expand</summary>
+
+- Runs a periodic global **pulse** every `pulseMs` milliseconds.  
+- Executes a **controlled number of nanoOps** via recursive `runLayer()`.  
+- Generates random Ethereum-style addresses and checks for a target substring (extremely unlikely to match).  
+- Total work per pulse = `min(maxTasksPerPulse, branch^depth)`.  
+- Streams telemetry each pulse (ops/sec, memory, progress).  
+- Every 10 seconds, prints a summary block.  
+- Press Ctrl-C for clean exit.
+
+</details>
+
+---
+
+## 10. Key Takeaways & Applications
+
+<details>
+<summary>Click to expand</summary>
+
+- **Pulse-driven, layered task spawning** → efficient, high-volume task management  
+- **Safety counters** prevent resource exhaustion  
+- **Telemetry & moving averages** → scaling and debugging visibility  
+- **Branching layers** → natural parallelism, compatible with clusters/distributed systems  
+
+### Practical Use Cases – Today
+
+**1. Pattern Search & Anomaly Detection**  
+- Large-scale log analysis (security, infrastructure, transactions)  
+- Genomic sequence search or protein folding simulation  
+- Financial fraud detection in real time  
+
+**2. Simulation & Monte Carlo Workloads**  
+- Predictive weather and climate modeling  
+- Financial market risk simulations  
+- Traffic and operational logistics simulations  
+
+**3. Load & Stress Testing**  
+- Testing APIs, databases, and microservice architectures  
+- Benchmarking blockchain nodes  
+- Generating synthetic high-load scenarios safely  
+
+**4. Edge & Distributed Computing**  
+- IoT devices executing local analytics or AI inference  
+- Distributed graphics rendering or video processing  
+- Decentralized mesh computation (smart sensors, solar-powered nodes)  
+
+**5. Real-Time Telemetry Systems**  
+- Industrial sensor monitoring  
+- Cybersecurity intrusion detection  
+- Adaptive workload scaling in cloud infrastructure  
+
+**6. Ethical Cryptography & Blockchain Tools**  
+- Vanity address generation (user-controlled)  
+- Random key entropy validation  
+- Collision testing in controlled environments  
+
+### Future Applications
+
+**1. Decentralized Compute Markets**  
+- Verifiable proof-of-work for contribution-based rewards  
+- Trustless computation marketplaces  
+
+**2. Carbon-Aware & Energy-Efficient Cloud Systems**  
+- Pulse-driven tasks for solar/battery-powered nodes  
+- Dynamic load balancing based on energy availability  
+
+**3. Autonomous Swarm Agents**  
+- AI or software agents performing heavy workloads predictably  
+- Coordinated distributed computation with guaranteed safety limits  
+
+**4. Scientific Research & Discovery**  
+- Large combinatorial or graph search problems  
+- Drug discovery and molecular simulation using pulse-optimized kernels  
+
+**5. Distributed AI Inference & Training**  
+- Real-time edge model updates without overheating devices  
+- Large-scale federated learning across many low-power nodes  
+
+**6. Quantum/Next-Gen Cryptography Testing**  
+- High-volume cryptographic primitives verification  
+- Real-time entropy and randomness monitoring  
+
+</details>
+
+---
+
+## 11. Summary
+
+This program is a **prototype of a rate-governed, verifiable, parallelizable compute substrate**.  
+Scaled up, it could serve as the foundation for:
+
+- Distributed compute swarms  
+- Verifiable computation markets  
+- Safety-bounded general computation  
+- Autonomous agents executing predictable heavy workloads  
+
+It is task-agnostic, purely a structured architecture for pulse-driven, safe, high-throughput computation.  
